@@ -3,7 +3,7 @@
 # **********
 FROM node:20.9.0-alpine AS base
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # **********
 # deps stage
@@ -23,7 +23,7 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
     elif [ -f "yarn.lock" ]; then \
         npm install -g yarn && \
         yarn install; \
-    elif [ -f "package-lock.json" ]; then \
+    elif [ -f "package-lock.json" ];then \
         npm install; \
     else \
         npm install; \
@@ -51,12 +51,19 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 # Build the React application
 RUN npm run build
 
-# Expose the port
-EXPOSE 3000
-
 # **********
 # prod stage
 # **********
-FROM inter AS prod
+FROM node:20.9.0-alpine AS prod
 
-CMD ["node", "dist/main"]
+WORKDIR /app
+
+# Copy the build output from the inter stage
+COPY --from=inter /app/.next ./.next
+COPY --from=inter /app/public ./public
+COPY --from=inter /app/package.json ./package.json
+COPY --from=inter /app/node_modules ./node_modules
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
