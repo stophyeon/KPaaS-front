@@ -3,7 +3,7 @@
 # **********
 FROM node:20.9.0-alpine AS base
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # **********
 # deps stage
@@ -59,4 +59,4 @@ EXPOSE 3000
 # **********
 FROM inter AS prod
 
-CMD ["npm", "start"]
+CMD ["node", "dist/main"]
