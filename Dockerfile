@@ -34,7 +34,7 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
         # echo "No Lockfile!"; \
         # exit 1; \
     fi
-
+RUN npm run build
 # Disable the telementary
 ENV NEXT_TELEMETRY_DISABLED 1
 
