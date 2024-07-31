@@ -20,6 +20,6 @@ RUN npm run build
 
 # 애플리케이션 실행 포트 지정
 EXPOSE 3000
-FROM inter AS dev
+
 # 애플리케이션 실행 명령어
 CMD ["npm", "run", "dev"]
