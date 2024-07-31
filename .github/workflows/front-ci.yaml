@@ -30,7 +30,7 @@ jobs:
     needs: build
     steps:
     - name: web docker build and push
-        run: |
+      run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DOCKER_REPO }}:front .
           docker push ${{ secrets.DOCKER_REPO }}:front
