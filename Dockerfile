@@ -1,66 +1,25 @@
-# Dockerfile
+#DockerFile
 
-# **********
-# base stage
-# **********
-FROM node:20.9.0-alpine AS base
+# 베이스 이미지 선택
+FROM node:20
 
-WORKDIR /app
+# 작업 디렉토리 설정
+WORKDIR /usr/src/app
 
-# **********
-# deps stage
-# **********
-FROM base AS deps
+# 종속성 파일 복사 (package.json 및 package-lock.json)
+COPY package*.json ./  
 
-# Copy package.json to /app
-COPY package.json ./
+# 종속성 설치
+RUN npm install 
 
-# Copy available lock file
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+# 애플리케이션 소스 코드 복사
+COPY . .   
 
-# Instal dependencies according to the lockfile
-RUN if [ -f "pnpm-lock.yaml" ]; then \
-        npm install -g pnpm && \
-        pnpm install; \
-    elif [ -f "yarn.lock" ]; then \
-        npm install -g yarn && \
-        yarn install; \
-    elif [ -f "package-lock.json" ]; then \
-        npm install; \
-    else \
-        npm install; \
-        # If you want to throw error on lockfile not being available, 
-        # uncomment the following lines
-        # echo "No Lockfile!"; \
-        # exit 1; \
-    fi
+# TypeScript 컴파일
 RUN npm run build
-# Disable the telementary
-ENV NEXT_TELEMETRY_DISABLED 1
 
-# ***********
-# inter stage
-# ***********
-FROM deps AS inter
-
-# Copy all other files excluding the ones in .dockerignore
-COPY . .
-
-# exposing the port
+# 애플리케이션 실행 포트 지정
 EXPOSE 3000
 
-# **********
-# prod stage
-# **********
-#FROM inter AS prod
-
-#RUN npm run build
-
-#CMD ["npm", "start"]
-
-# **********
-# dev stage
-# **********
-FROM inter AS dev
-
-CMD ["npm", "run", "dev"]
+# 애플리케이션 실행 명령어
+CMD ["node", "dist/src/main"]
