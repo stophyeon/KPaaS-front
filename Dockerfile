@@ -1,38 +1,38 @@
-# **********
-# base stage
-# **********
 FROM node:20.9.0-alpine AS base
 
-# 작업 디렉토리 설정
-WORKDIR /usr/src/app
+WORKDIR /app
 
-# **********
-# deps stage
-# **********
 FROM base AS deps
 
-# 패키지 파일 복사
 COPY package.json ./
 
-# NEXT.js Telemetry 비활성화
+COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
+
+RUN if [ -f "pnpm-lock.yaml" ]; then \
+        npm install -g pnpm && \
+        pnpm install; \
+    elif [ -f "yarn.lock" ]; then \
+        npm install -g yarn && \
+        yarn install; \
+    elif [ -f "package-lock.json" ]; then \
+        npm install; \
+    else \
+        npm install; \
+        
+    fi
+
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# 빌드 타임 환경 변수 설정
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+FROM deps AS inter
 
-# React 애플리케이션 빌드
-COPY package*.json ./
-RUN npm install
-
-# Copy app source code
 COPY . .
 
-# Build the app
-RUN npm run build
-
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Command to run the app
-CMD ["npm", "run", "start"]
+FROM inter AS prod
+
+RUN npm run build
+
+FROM inter AS dev
+
+CMD ["npm", "start"]
