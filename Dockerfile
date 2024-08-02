@@ -23,7 +23,7 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
     elif [ -f "yarn.lock" ]; then \
         npm install -g yarn && \
         yarn install; \
-    elif [ -f "package-lock.json" ]; then \
+    elif [ -f "package-lock.json" ];then \
         npm install; \
     else \
         npm install; \
@@ -37,9 +37,9 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # ***********
-# inter stage
+# build stage
 # ***********
-FROM deps AS inter
+FROM deps AS build
 
 # Copy all other files excluding the ones in .dockerignore
 COPY . .
@@ -51,13 +51,21 @@ ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 # Build the React application
 RUN npm run build
 
-# Exposing the port
-EXPOSE 3000
-
 # **********
 # prod stage
 # **********
-FROM inter AS prod
+FROM base AS prod
 
-ENTRYPOINT ["/bin/sh", "/usr/local/bin/docker-entrypoint.sh"]
+# Copy built files from build stage
+COPY --from=build /app/.next /app/.next
+COPY --from=build /app/public /app/public
+COPY --from=build /app/package.json /app/package.json
+
+# Install only production dependencies
+RUN npm install --production
+
+# Exposing the port
+EXPOSE 3000
+
+# Start the application
 CMD ["npm", "start"]
