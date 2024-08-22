@@ -15,5 +15,6 @@ spec:
       containers:
         - name: front-service
           image: stophyeon/graduate:front
+          imagePullPolicy: Always
           ports:
             - containerPort: 3000

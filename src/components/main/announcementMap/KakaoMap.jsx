@@ -9,7 +9,7 @@ export default function KakaoMap({ gym }) {
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=4d6d8c3cc12679e673ba2b73431b4555&libraries=services&autoload=false`;
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2ec8971185df55999365b9a871a9f08f&libraries=services&autoload=false`;
     script.async = true;
     document.head.appendChild(script);
 
