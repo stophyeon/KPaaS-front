@@ -17,5 +17,3 @@ spec:
           image: stophyeon/graduate:front
           ports:
             - containerPort: 3000
-
-          

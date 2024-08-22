@@ -22,42 +22,47 @@ export async function sendpostData(formData, accessToken) {
   }
 }
 
-export async function getPostsFile() {
-  // const response = await fetch('http://KPaas-apigateway-service-1:8888/post/page', {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/post/page`, {
-    cache: 'no-store',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  const data = await response.json();
-  if (data === null) {
-    const api = [];
-    return api;
-  } else {
-    return data;
-  }
-}
+export async function getPostsFile({
+  pageParam = 0,
+  categories = [],
+  locations = [],
+}) {
+  const queryParams = new URLSearchParams({ page: pageParam });
+  if (categories.length > 0)
+    queryParams.append('category_id', categories.join(','));
+  if (locations.length > 0) queryParams.append('location', locations.join(','));
 
-export async function LogingetPostsFile(accessToken, nick_name) {
-  //const response = await fetch(`http://KPaas-apigateway-service-1:8888/post/page?nick_name=${nick_name}`, {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/post/page?nick_name=${nick_name}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/post/page?${queryParams}`,
     {
       cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `${accessToken}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
     }
   );
   const data = await response.json();
-  if (data === null) {
-    const api = [];
-    return api;
-  } else {
-    return data;
-  }
+  return data || { content: [], last: true };
+}
+
+export async function LogingetPostsFile(
+  pageParam,
+  nick_name,
+  categories = [],
+  locations = []
+) {
+  const queryParams = new URLSearchParams({ page: pageParam, nick_name });
+  if (categories.length > 0)
+    queryParams.append('category_id', categories.join(','));
+  if (locations.length > 0) queryParams.append('location', locations.join(','));
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/post/page?${queryParams}`,
+    {
+      cache: 'no-store',
+      headers: { 'Content-Type': 'application/json' },
+    }
+  );
+  const data = await response.json();
+  return data || { content: [], last: true };
 }
 
 export async function getPostsFiles(page, accessToken) {
@@ -167,20 +172,19 @@ export async function Likepost(accessToken, post_id) {
 }
 
 // 사용자 좋아요 목록
-export async function LikeList(nick_name) {
+export async function LikeList(nick_name, pageParam = 0) {
   try {
-    //  const response = await fetch('http://KPaas-apigateway-service-1:8888/post/like', {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/post/profile/like/${nick_name}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/post/profile/like/${nick_name}?page=${pageParam}`,
       {
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-store'
+        cache: 'no-store',
       }
     );
     if (!response.ok) {
-      console.log('Error!');
+      throw new Error('Network response was not ok');
     }
     const data = await response.json();
     return data;
@@ -189,7 +193,6 @@ export async function LikeList(nick_name) {
     throw error;
   }
 }
-
 export async function DeleteLike(accessToken, postid) {
   try {
     //  const response = await fetch(`http://KPaas-apigateway-service-1:8888/post/like/${postid}`, {

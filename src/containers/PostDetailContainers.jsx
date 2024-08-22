@@ -7,35 +7,38 @@ import PostDropdown from '@compoents/components/posts/Detailoptions/PostDropdown
 import Recommendations from '@compoents/components/posts/Detailoptions/RecommendComponents';
 import PostDetails from '@compoents/components/posts/Detailoptions/DetailPostcomponents';
 
-
 export default function PostDetailContainers({
   postId,
-  postpage,
   post,
   postList,
   accessToken,
   nick_name,
+  role,
 }) {
-  const [liked, setLiked] = useState(false);
+  const [likedPosts, setLikedPosts] = useState(() => {
+    const initialLikedPosts = { [postId]: post.like };
+    postList.forEach((post) => {
+      initialLikedPosts[post.post_id] = post.like;
+    });
+    return initialLikedPosts;
+  });
 
-  const handleLikeClick = async () => {
+  const handleLikeClick = async (clickedPostId) => {
     try {
-      if (liked) {
-        // 이미 좋아요를 눌렀을 경우
-        const response = await DeleteLike(accessToken, postId);
-        if (response.state == 'Jwt Expired') {
+      if (likedPosts[clickedPostId]) {
+        const response = await DeleteLike(accessToken, clickedPostId);
+        if (response.state === 'Jwt Expired') {
           const NewaccessToken = await RefreshAccessToken();
-          await DeleteLike(NewaccessToken, postId);
+          await DeleteLike(NewaccessToken, clickedPostId);
         }
-        setLiked(false);
+        setLikedPosts((prev) => ({ ...prev, [clickedPostId]: false }));
       } else {
-        // 아직 좋아요를 누르지 않은 경우
-        const response = await Likepost(accessToken, postId);
-        if (response.state == 'Jwt Expired') {
+        const response = await Likepost(accessToken, clickedPostId);
+        if (response.state === 'Jwt Expired') {
           const NewaccessToken = await RefreshAccessToken();
-          await Likepost(NewaccessToken, postData.post_id);
+          await Likepost(NewaccessToken, clickedPostId);
         }
-        setLiked(true);
+        setLikedPosts((prev) => ({ ...prev, [clickedPostId]: true }));
       }
     } catch (error) {
       console.error('좋아요 요청을 보내는 중 오류가 발생했습니다.', error);
@@ -49,21 +52,18 @@ export default function PostDetailContainers({
   };
 
   const formattedPrice = post.price.toLocaleString('ko-KR');
+  const canEditOrDelete = nick_name === post.nick_name || role === 'ADMIN';
 
   const linkProfile = `/profile/${post.nickName}`;
-  const likedBtnSrc = liked
+  const likedBtnSrc = likedPosts[postId]
     ? '/images/png/icon-heart-fill.png'
     : '/images/png/icon-heart.png';
 
   return (
     <StyledWrapper>
       <div className="container">
-        {nick_name === post.nickName && (
-          <PostDropdown
-            postpage={postpage}
-            postId={postId}
-            accessToken={accessToken}
-          />
+        {canEditOrDelete && (
+          <PostDropdown postId={postId} accessToken={accessToken} />
         )}
         <PostDetails
           post={post}
@@ -71,14 +71,17 @@ export default function PostDetailContainers({
           formattedPrice={formattedPrice}
           accessToken={accessToken}
           postId={postId}
-          likedBtnSrc={likedBtnSrc}
-          handleLikeClick={handleLikeClick}
+          likedBtnSrc={
+            likedPosts[postId]
+              ? '/images/png/icon-heart-fill.png'
+              : '/images/png/icon-heart.png'
+          }
+          handleLikeClick={() => handleLikeClick(postId)}
         />
         <Recommendations
           postList={postList}
           accessToken={accessToken}
-          postpage={postpage}
-          likedBtnSrc={likedBtnSrc}
+          likedPosts={likedPosts}
           handleLikeClick={handleLikeClick}
         />
       </div>
@@ -204,6 +207,4 @@ const StyledWrapper = styled.div`
     text-align: center;
     margin-top: 30px;
   }
-
-  
 `;

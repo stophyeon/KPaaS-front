@@ -2,44 +2,30 @@
 import Link from 'next/link';
 import styled from 'styled-components';
 import { useDropdown } from '../payment/payDropdown';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-
 import { Likepost, DeleteLike } from '@compoents/util/post-util';
 import { RefreshAccessToken } from '@compoents/util/http';
 import ChoosePayModal from '../payment/ChoosePay';
 import Chatting from '../chatting/Chatting';
+import axios from 'axios';
 
 export default function PostItem({ postData, posts, accessToken }) {
   const router = useRouter();
   const { showDropdown, handleOpenDropdown, dropdownRef } = useDropdown();
-  // const {
-  //   postName,
-  //   price,
-  //   postId,
-  //   nickName,
-  //   imagePost,
-  //   userProfile,
-  //   state,
-  //   like,
-  // } = props.post;
-
-  const { pageNumber } = posts.pageable;
-
-  // 초기값을 지금은 false로 했지만, 다음엔 post.liked로 해야함
+  const [isMounted, setIsMounted] = useState(false);
   const [liked, setLiked] = useState(false);
-  const linkPath = `/${pageNumber}/${postData.post_id}`;
+  const linkPath = `/${postData.post_id}`;
   const linkProfile = `/profile/${postData.nick_name}`;
   const formattedPrice = postData.price.toLocaleString('ko-KR');
   const likedBtnSrc = liked
     ? '/images/png/icon-heart-fill.png'
     : '/images/png/icon-heart.png';
 
-  // TODO : accessToken이 없는 상태로는 우선 주석처리후 사용
-
-  // const handleLikeClick = () => {
-  //   setLiked(!liked);
-  // };
+  useEffect(() => {
+    setIsMounted(true);
+    setLiked(postData.like);
+  }, [postData.like]);
 
   const handleLikeClick = async () => {
     if (!accessToken) {
@@ -65,6 +51,32 @@ export default function PostItem({ postData, posts, accessToken }) {
       }
     } catch (error) {
       console.error('좋아요 처리 중 오류가 발생했습니다.', error);
+    }
+  };
+
+  const handleChatClick = async () => {
+    if (!accessToken) {
+      router.push('/user/login');
+      return;
+    }
+
+    try {
+      // 채팅방 생성 요청 API
+      const response = await axios.post(
+        `http://192.168.23.73:32073/chatroom/make/post/${postData.post_id}`,
+        {},
+        {
+          headers: {
+            Authorization: accessToken,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        router.push(`/chat/${postData.post_id}`);
+      }
+    } catch (error) {
+      console.error('채팅방 생성 중 오류가 발생했습니다.', error);
     }
   };
 
@@ -102,25 +114,34 @@ export default function PostItem({ postData, posts, accessToken }) {
             <span>{formattedPrice}원</span>
           </div>
 
-          {/* 좋아요 버튼 */}
-          <div className="wrapper-info-btns">
-            <button className="btn-like" onClick={handleLikeClick}>
-              <img src={likedBtnSrc} alt="좋아요 버튼" />
-            </button>
-            <Chatting />
-            <div className="dropdown-container" ref={dropdownRef}>
-              <button onClick={handleOpenDropdown} className="btn-choose">
-                <img src="/images/svg/icon-shopping-cart.svg" alt="구매하기" />
+          {isMounted && (
+            <div className="wrapper-info-btns">
+              <button className="btn-like" onClick={handleLikeClick}>
+                <img src={likedBtnSrc} alt="좋아요 버튼" />
               </button>
-              {showDropdown && (
-                <ChoosePayModal
-                  accessToken={accessToken}
-                  postId={postData.post_id}
-                  post={postData}
-                />
-              )}
+
+              {/* 채팅하기 버튼 */}
+              <button onClick={handleChatClick} className="btn-chatting">
+                <Chatting />
+              </button>
+
+              <div className="dropdown-container" ref={dropdownRef}>
+                <button onClick={handleOpenDropdown} className="btn-choose">
+                  <img
+                    src="/images/svg/icon-shopping-cart.svg"
+                    alt="구매하기"
+                  />
+                </button>
+                {showDropdown && (
+                  <ChoosePayModal
+                    accessToken={accessToken}
+                    postId={postData.post_id}
+                    post={postData}
+                  />
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </StyledWrapper>
@@ -143,6 +164,7 @@ const StyledWrapper = styled.div`
     display: flex;
     gap: 12px;
     padding: 12px 12px 0 12px;
+    height: 64px;
 
     .img-profile {
       width: 40px;
@@ -195,6 +217,7 @@ const StyledWrapper = styled.div`
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        height: 20px;
       }
     }
 
@@ -235,6 +258,10 @@ const StyledWrapper = styled.div`
             height: 20px;
           }
         }
+
+        .btn-chatting {
+          border: none;
+        }
         .btn-choose {
           display: flex;
           justify-content: center;
@@ -246,7 +273,7 @@ const StyledWrapper = styled.div`
 
           > img {
             width: 20px;
-            height: 20px;
+            height: 23px;
             cursor: pointer;
           }
         }

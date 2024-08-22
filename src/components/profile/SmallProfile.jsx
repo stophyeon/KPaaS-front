@@ -19,8 +19,8 @@ export default function SmallProfile({ accessToken }) {
   const linkbucket = `/bucket/${userInfo.nick_name}`;
 
   async function logoutHandler() {
-    const REST_API_KEY = 'b9759cba8e0cdd5bcdb9d601f5a10ac1';
-    const REDIRECT_URI = 'http://localhost:3000';
+    const REST_API_KEY = '53e2138a4604fecace12418c569e9753';
+    const REDIRECT_URI = 'http://192.168.23.73:32319';
 
     try {
       await Promise.all([Logout(accessToken), KakaoLogout(), deleteCookies()]);
@@ -51,7 +51,6 @@ export default function SmallProfile({ accessToken }) {
           console.log(Newdata);
         } else {
           setuserInfo(data);
-          console.log(data);
         }
       } catch (error) {
         console.error(

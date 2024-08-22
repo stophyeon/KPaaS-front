@@ -14,10 +14,10 @@ export default function OtherProfileform({
   accessToken,
   followerList,
   followingList,
-  userproducts,
+  initialProducts,
   isFollowing,
 }) {
-  const [currentView, setCurrentView] = useState('likes');
+  const [currentView, setCurrentView] = useState('products'); // products
   const [modalType, setModalType] = useState(null);
   const [isfollow, setfollowing] = useState(isFollowing);
 
@@ -67,6 +67,7 @@ export default function OtherProfileform({
         isfollow={isfollow}
         onFollowingClick={() => openModal('following')}
         onFollowerClick={() => openModal('follower')}
+        accessToken={accessToken}
       />
       
       {modalType === 'following' && (
@@ -96,7 +97,7 @@ export default function OtherProfileform({
         currentView={currentView}
         nick_name={userInfo.nick_name}
         accessToken={accessToken}
-        userproducts={userproducts}
+        initialProducts={initialProducts}
       />
     </StyledWrapper>
   );

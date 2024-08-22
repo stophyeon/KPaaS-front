@@ -1,7 +1,9 @@
+# Dockerfile
+
 # **********
 # base stage
 # **********
-FROM --platform=linux/amd64/v3 node:20.9.0-alpine AS base
+FROM node:20.9.0-alpine AS base
 
 WORKDIR /app
 
@@ -16,14 +18,14 @@ COPY package.json ./
 # Copy available lock file
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 
-# Install dependencies according to the lockfile
+# Instal dependencies according to the lockfile
 RUN if [ -f "pnpm-lock.yaml" ]; then \
         npm install -g pnpm && \
         pnpm install; \
     elif [ -f "yarn.lock" ]; then \
         npm install -g yarn && \
         yarn install; \
-    elif [ -f "package-lock.json" ];then \
+    elif [ -f "package-lock.json" ]; then \
         npm install; \
     else \
         npm install; \
@@ -33,39 +35,32 @@ RUN if [ -f "pnpm-lock.yaml" ]; then \
         # exit 1; \
     fi
 
-# Disable the telemetry
+# Disable the telementary
 ENV NEXT_TELEMETRY_DISABLED 1
 
 # ***********
-# build stage
+# inter stage
 # ***********
-FROM deps AS build
+FROM deps AS inter
 
 # Copy all other files excluding the ones in .dockerignore
 COPY . .
 
-# Set build-time environment variables
-ARG NEXT_PUBLIC_API_URL=http://192.168.23.73:31663
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-
-# Build the React application
-RUN npm run build
+# exposing the port
+EXPOSE 3000
 
 # **********
 # prod stage
 # **********
-FROM base AS prod
+#FROM inter AS prod
 
-# Copy built files from build stage
-COPY --from=build /app/.next /app/.next
-COPY --from=build /app/public /app/public
-COPY --from=build /app/package.json /app/package.json
+#RUN npm run build
 
-# Install only production dependencies
-RUN npm install --production
+#CMD ["npm", "start"]
 
-# Exposing the port
-EXPOSE 3000
+# **********
+# dev stage
+# **********
+FROM inter AS dev
 
-# Start the application
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

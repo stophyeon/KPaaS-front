@@ -174,7 +174,7 @@ export default function PostForm({ accessToken }) {
         const newAccessToken = await RefreshAccessToken();
         await sendpostData(formData, newAccessToken);
       }
-      const redirectUrl = 'http://localhost:3000';
+      const redirectUrl = 'http://192.168.23.73:32319';
       window.location.href = redirectUrl;
     } catch (error) {
       console.error('에러 발생:', error);
