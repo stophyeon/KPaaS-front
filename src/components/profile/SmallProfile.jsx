@@ -20,7 +20,7 @@ export default function SmallProfile({ accessToken }) {
 
   async function logoutHandler() {
     const REST_API_KEY = '53e2138a4604fecace12418c569e9753';
-    const REDIRECT_URI = 'http://192.168.23.73:32319';
+    const REDIRECT_URI = 'http://192.168.23.102:32319';
 
     try {
       await Promise.all([Logout(accessToken), KakaoLogout(), deleteCookies()]);

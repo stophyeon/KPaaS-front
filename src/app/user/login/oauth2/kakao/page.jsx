@@ -25,7 +25,7 @@ export default function KakaoLogin() {
         const { accessToken, refreshToken } = data;
         document.cookie = `Authorization=Bearer ${accessToken}; path=/`;
         document.cookie = `refreshToken=${refreshToken}; path=/;`;
-        const redirectUrl = 'http://192.168.23.73:32319';
+        const redirectUrl = 'http://192.168.23.102:32319';
         window.location.href = redirectUrl;
         return;
       }

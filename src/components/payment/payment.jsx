@@ -29,7 +29,7 @@ export default function Payment({ accessToken, postId, post }) {
         totalAmount: post.price,
         currency: 'CURRENCY_KRW',
         payMethod: 'EASY_PAY',
-        redirectUrl: `http://192.168.23.73:32319`,
+        redirectUrl: `http://192.168.23.102:32319`,
       });
 
       if (response.code != null) {

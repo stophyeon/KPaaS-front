@@ -23,7 +23,7 @@ export default function ChatClient({ userInfo }) {
 
       axios
         .get(
-          'http://192.168.23.73:32073/chatroom/search',
+          'http://192.168.23.102:32073/chatroom/search',
           {
             headers: {
               Authorization: decodedToken,

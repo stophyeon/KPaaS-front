@@ -7,7 +7,7 @@ import PostItem from '@compoents/components/posts/post-item';
 import MainNavigation from '@compoents/components/layout/main-navigation';
 
 const BASE_URL =
-  'http://192.168.23.73:32073';
+  'http://192.168.23.102:32073';
 
 const fetchPosts = async ({ pageParam = 0 }) => {
   const response = await fetch(`${BASE_URL}/post/search?page=${pageParam}`, {

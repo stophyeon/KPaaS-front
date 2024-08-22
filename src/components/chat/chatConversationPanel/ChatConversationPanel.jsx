@@ -70,7 +70,7 @@ export default function ChatConversationPanel({ userInfo, roomId }) {
 
         axios
           .get(
-            `http://192.168.23.73:32073/post/detail/${roomId}`,
+            `http://192.168.23.102:32073/post/detail/${roomId}`,
             {
               headers: {
                 Authorization: decodedToken,
@@ -91,7 +91,7 @@ export default function ChatConversationPanel({ userInfo, roomId }) {
     if (!roomId) return;
 
     const socket = new SockJS(
-      'http://192.168.23.73:31163/ws'
+      'http://192.168.23.102:31163/ws'
     );
     const client = new Client({
       webSocketFactory: () => socket,

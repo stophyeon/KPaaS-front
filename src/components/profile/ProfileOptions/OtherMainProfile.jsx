@@ -23,7 +23,7 @@ export default function OtherProfileInfo({
   try {
       // 채팅방 생성 요청 API
       const response = await axios.post(
-        `http://192.168.23.73:32073/chatroom/make/${userInfo.nick_name}`,
+        `http://192.168.23.102:32073/chatroom/make/${userInfo.nick_name}`,
         {},
         {
           headers: {

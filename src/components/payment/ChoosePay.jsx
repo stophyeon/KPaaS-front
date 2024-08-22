@@ -32,7 +32,7 @@ export default function ChoosePayModal({ accessToken, postId, post }) {
   };
 
   const handlebucket = () => {
-    window.location.href = `http://192.168.23.73:32319/bucket`;
+    window.location.href = `http://192.168.23.102:32319/bucket`;
   };
 
   useEffect(() => {

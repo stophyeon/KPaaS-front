@@ -63,7 +63,7 @@ export default function PostItem({ postData, posts, accessToken }) {
     try {
       // 채팅방 생성 요청 API
       const response = await axios.post(
-        `http://192.168.23.73:32073/chatroom/make/post/${postData.post_id}`,
+        `http://192.168.23.102:32073/chatroom/make/post/${postData.post_id}`,
         {},
         {
           headers: {
